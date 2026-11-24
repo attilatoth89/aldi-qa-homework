@@ -162,9 +162,7 @@ or a search index), and there it would re-send the request until the expected st
 ```ts
 test('creates a task: 201, Location header and the stored representation', { tag: '@smoke' }, async ({ tasksApi }) => {
   const payload = buildTask(CUSTOM_FIELDS);
-
   const response = await tasksApi.create(payload);
-
   expect(response.status()).toBe(CREATED_STATUS);
   const task = await response.json();
   expectTaskContract(task);
@@ -172,8 +170,6 @@ test('creates a task: 201, Location header and the stored representation', { tag
   expect(task.createdAt, ASSERTION_MESSAGES.newTaskTimestampsEqual).toBe(task.updatedAt);
   const location = response.headers()['location'];
   expect(location, ASSERTION_MESSAGES.locationPointsToTask).toMatch(new RegExp(`${TASKS_PATH}/${task.id}$`));
-
-  // The new resource can be read back.
   const readBack = await tasksApi.get(task.id);
   expect(readBack.status()).toBe(OK_STATUS);
   expect(await readBack.json()).toEqual(task);
@@ -182,7 +178,6 @@ test('creates a task: 201, Location header and the stored representation', { tag
 for (const { scenario, payload, invalidFields } of INVALID_PAYLOADS) {
   test(`rejects ${scenario} with 400 VALIDATION_ERROR`, async ({ tasksApi }) => {
     const response = await tasksApi.create(payload);
-
     await expectError(response, BAD_REQUEST_STATUS, VALIDATION_ERROR_CODE, invalidFields);
   });
 }
@@ -193,7 +188,6 @@ for (const { scenario, payload, invalidFields } of INVALID_PAYLOADS) {
 ```ts
 test('returns 200 and the task', { tag: '@smoke' }, async ({ tasksApi, createdTask }) => {
   const response = await tasksApi.get(createdTask.id);
-
   expect(response.status()).toBe(OK_STATUS);
   const task = await response.json();
   expectTaskContract(task);
@@ -202,7 +196,6 @@ test('returns 200 and the task', { tag: '@smoke' }, async ({ tasksApi, createdTa
 
 test("returns 404 for another user's task (no data leak)", async ({ otherUserTasksApi, createdTask }) => {
   const response = await otherUserTasksApi.get(createdTask.id);
-
   await expectError(response, NOT_FOUND_STATUS, NOT_FOUND_CODE);
 });
 ```
@@ -211,10 +204,8 @@ test("returns 404 for another user's task (no data leak)", async ({ otherUserTas
 
 ```ts
 test('replaces the task: 200 with the new state, which is persisted', { tag: '@smoke' }, async ({ tasksApi, createdTask }) => {
-  const changes = buildTask(REPLACEMENT_FIELDS); // every field differs from the created task
-
+  const changes = buildTask(REPLACEMENT_FIELDS);
   const response = await tasksApi.update(createdTask.id, changes);
-
   expect(response.status()).toBe(OK_STATUS);
   const updated = await response.json();
   expectTaskContract(updated);
@@ -222,7 +213,6 @@ test('replaces the task: 200 with the new state, which is persisted', { tag: '@s
   expect(Date.parse(updated.updatedAt), ASSERTION_MESSAGES.updatedAtMovesForward).toBeGreaterThan(
     Date.parse(createdTask.updatedAt),
   );
-
   const readBack = await tasksApi.get(createdTask.id);
   expect(await readBack.json()).toEqual(updated);
 });
@@ -233,7 +223,6 @@ test('replaces the task: 200 with the new state, which is persisted', { tag: '@s
 ```ts
 test('deletes the task: 204 with an empty body, then GET returns 404', { tag: '@smoke' }, async ({ tasksApi, createdTask }) => {
   const response = await tasksApi.delete(createdTask.id);
-
   expect(response.status()).toBe(NO_CONTENT_STATUS);
   expect(await response.text()).toBe(EMPTY_BODY);
   await expectError(await tasksApi.get(createdTask.id), NOT_FOUND_STATUS, NOT_FOUND_CODE);
@@ -246,7 +235,6 @@ test('deletes the task: 204 with an empty body, then GET returns 404', { tag: '@
 for (const { endpoint, call } of PROTECTED_CALLS) {
   test(`${endpoint} without a token returns 401`, async ({ anonymousTasksApi }) => {
     const response = await call(anonymousTasksApi);
-
     await expectError(response, UNAUTHORIZED_STATUS, UNAUTHORIZED_CODE);
     expect(response.headers()['www-authenticate']).toBe(EXPECTED_AUTH_SCHEME);
   });

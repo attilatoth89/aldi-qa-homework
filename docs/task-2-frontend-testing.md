@@ -143,7 +143,6 @@ The two core scenarios of the assignment are:
 ```ts
 test('signs in with valid credentials and opens the task list', { tag: '@smoke' }, async ({ page, loginPage, tasksPage }) => {
   await loginPage.login(users.demo.email, users.demo.password);
-
   await expect(page).toHaveURL(TASKS_URL_PATTERN);
   await expect(tasksPage.heading).toBeVisible();
   await expect(tasksPage.signedInUser).toHaveText(SIGNED_IN_TEXT);
@@ -155,14 +154,12 @@ test('signs in with valid credentials and opens the task list', { tag: '@smoke' 
 
 test('rejects an invalid password: generic error, no session, user stays on the page', { tag: '@smoke' }, async ({ page, loginPage }) => {
   const loginResponse = page.waitForResponse((response) => response.url().endsWith(LOGIN_API_PATH));
-
   await loginPage.login(users.demo.email, WRONG_PASSWORD);
-
   expect((await loginResponse).status()).toBe(UNAUTHORIZED_STATUS);
   await expect(loginPage.errorAlert).toHaveText(GENERIC_LOGIN_ERROR);
   await expect(page).toHaveURL(LOGIN_URL_PATTERN);
-  await expect(loginPage.emailInput).toHaveValue(users.demo.email);
-  await expect(loginPage.passwordInput).toBeEmpty();
+  await expect(loginPage.emailInput).toHaveValue(users.demo.email); // the user does not have to retype it
+  await expect(loginPage.passwordInput).toBeEmpty(); // the wrong password is cleared
   await expect(loginPage.submitButton).toBeEnabled();
   await expect.poll(() => loginPage.storedSession(), { message: ASSERTION_MESSAGES.noSessionAfterFailedLogin }).toBeNull();
 });
@@ -186,7 +183,7 @@ export class LoginPage {
     this.heading = page.getByRole('heading', { name: 'Sign in' });
     this.emailInput = page.getByLabel('Email', { exact: true });
     this.passwordInput = page.getByLabel('Password', { exact: true });
-    this.submitButton = page.getByTestId('login-submit'); // label changes to "Signing in…"
+    this.submitButton = page.getByTestId('login-submit'); // label changes to "Signing in…" while submitting
     this.errorAlert = page.getByRole('alert');
     // ...
   }

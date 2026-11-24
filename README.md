@@ -1,11 +1,13 @@
 # QA Automation Engineer homework – ALDI
 
 [![CI](https://github.com/attilatoth89/aldi-qa-homework/actions/workflows/ci.yml/badge.svg?branch=main&event=push)](https://github.com/attilatoth89/aldi-qa-homework/actions/workflows/ci.yml)
+[![Docker](https://github.com/attilatoth89/aldi-qa-homework/actions/workflows/docker.yml/badge.svg?branch=main&event=push)](https://github.com/attilatoth89/aldi-qa-homework/actions/workflows/docker.yml)
 
 My solution to the homework assignment for the QA Automation Engineer position. Each task has its
 own document in [`docs/`](docs), and all the code is executable: every push runs 70 automated
 tests on GitHub Actions (48 API, 14 E2E in Chromium, 8 Selenium), and a nightly run adds Firefox
-and WebKit to the E2E suite.
+and WebKit to the E2E suite. A second workflow builds the Docker Compose environment and runs the
+same suites in containers.
 
 **Author:** Attila Tóth
 
