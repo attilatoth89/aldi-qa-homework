@@ -29,6 +29,11 @@ nightly schedule ─────── the same jobs, e2e-tests as a matrix: Chr
 The jobs run **in parallel**. `concurrency` cancels a run that a newer commit has made outdated,
 and `fail-fast: false` lets every browser finish so that all failures are visible.
 
+A second workflow, [`.github/workflows/docker.yml`](../.github/workflows/docker.yml), checks the
+Docker Compose test environment: when the Docker setup or the dependencies change (and on demand)
+it builds the images and runs both suites in containers. It is separate from `ci.yml`, so the
+fast feedback on every commit does not wait for image builds.
+
 ## 3. Processes and tools that keep it reliable
 
 | Area | Practice |

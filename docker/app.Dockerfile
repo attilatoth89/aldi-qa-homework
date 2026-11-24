@@ -1,15 +1,17 @@
 # System under test in one container: the Angular production build is served by the
 # zero-dependency Node.js API, so the web app and the REST API share one origin (http://app:3000).
 
-# Stage 1 - production build of the Angular app
-FROM node:22-alpine AS web-build
+# Stage 1 - production build of the Angular app. Debian-based, the same libc as the CI runners,
+# so the platform-specific build tools from the lockfile (esbuild, Rollup) are the ones CI uses.
+FROM node:22-slim AS web-build
+ENV NG_CLI_ANALYTICS=false
 WORKDIR /web
 COPY app-under-test/task-manager-web/package*.json ./
 RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
 COPY app-under-test/task-manager-web/ ./
 RUN npm run build
 
-# Stage 2 - runtime
+# Stage 2 - runtime: a small image with only Node.js, the API and the static build
 FROM node:22-alpine
 WORKDIR /app
 ENV NODE_ENV=production \

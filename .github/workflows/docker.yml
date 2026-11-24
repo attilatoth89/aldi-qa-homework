@@ -1,0 +1,59 @@
+name: Docker
+
+# Builds the Docker Compose test environment and runs both suites in containers, with exactly the
+# commands documented in docs/bonus-docker.md. Runs when the Docker setup or the dependencies
+# change, and on demand.
+on:
+  push:
+    branches: [main]
+    paths:
+      - docker/**
+      - docker-compose.yml
+      - .dockerignore
+      - '**/package-lock.json'
+      - selenium-junit-tests/pom.xml
+      - .github/workflows/docker.yml
+  workflow_dispatch:
+
+concurrency:
+  group: docker-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  compose:
+    name: Docker Compose (Playwright + Selenium in containers)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Build the images
+        run: docker compose --profile selenium build
+
+      - name: Playwright suites in containers (API + Chromium E2E)
+        run: docker compose run --rm playwright-tests
+
+      - name: Selenium + JUnit suite in containers
+        if: ${{ !cancelled() }}
+        run: docker compose --profile selenium run --rm selenium-tests
+
+      - name: Show the container logs
+        if: failure()
+        run: docker compose --profile selenium logs
+
+      - name: Clean up
+        if: always()
+        run: docker compose --profile selenium down -v
+
+      - uses: actions/upload-artifact@v6
+        if: ${{ !cancelled() }}
+        with:
+          name: docker-test-reports
+          path: |
+            playwright-tests/reports/
+            selenium-junit-tests/target/surefire-reports/
+            selenium-junit-tests/target/screenshots/
+          retention-days: 14

@@ -26,7 +26,7 @@ services:
       - ./playwright-tests/test-results:/tests/test-results
 
   selenium-chrome:
-    image: selenium/standalone-chrome:latest
+    image: selenium/standalone-chrome:4.54.0-20261124 # Selenium Grid = the client version in pom.xml
     profiles: ["selenium"]
     shm_size: 2gb
     healthcheck:

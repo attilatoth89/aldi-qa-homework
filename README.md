@@ -14,7 +14,7 @@ and WebKit to the E2E suite.
 | **1 – Manual testing** | 3 test cases for "Add to Shopping List" on aldi.us (positive and negative), the test case fields, the bug report fields and a sample bug report, based on an exploratory session on the live site | [docs/task-1-manual-testing.md](docs/task-1-manual-testing.md) |
 | **2 – Frontend testing** | Setup steps and a Playwright + TypeScript E2E suite for the Angular **Login** (successful login, invalid password, validation, security, session): 14 tests | [docs/task-2-frontend-testing.md](docs/task-2-frontend-testing.md), [`playwright-tests/tests/e2e`](playwright-tests/tests/e2e) |
 | **3 – API testing** | Playwright API suite for `POST /tasks`, `GET`, `PUT`, `DELETE /tasks/{id}` with the expected status codes and responses: 38 tests, plus 10 login API tests | [docs/task-3-api-testing.md](docs/task-3-api-testing.md), [`playwright-tests/tests/api`](playwright-tests/tests/api) |
-| **Bonus – Docker** | What Docker is and why it helps QA, plus a Docker Compose test environment | [docs/bonus-docker.md](docs/bonus-docker.md), [`docker-compose.yml`](docker-compose.yml) |
+| **Bonus – Docker** | What Docker is and why it helps QA, plus a Docker Compose test environment that a GitHub Actions workflow builds and runs | [docs/bonus-docker.md](docs/bonus-docker.md), [`docker-compose.yml`](docker-compose.yml) |
 | **Bonus – JUnit + Selenium** | Maven project (Java 21, JUnit 5, Selenium 4) for the **Delete Task** feature: 8 tests | [docs/bonus-junit-selenium.md](docs/bonus-junit-selenium.md), [`selenium-junit-tests`](selenium-junit-tests) |
 | **Bonus – CI** | GitHub Actions pipeline for every push and pull request with a nightly cross-browser run, plus Jenkins and GitLab CI examples | [docs/bonus-ci.md](docs/bonus-ci.md), [`.github/workflows/ci.yml`](.github/workflows/ci.yml) |
 
@@ -78,7 +78,7 @@ Reports: `playwright-tests/reports/html` (open with `npm run report --prefix pla
 
 | Area | Tools |
 | --- | --- |
-| Test automation | Playwright 1.63 with TypeScript; Selenium 4.52 + JUnit 5.14 (Java 21, Maven) |
+| Test automation | Playwright 1.63 with TypeScript; Selenium 4.54 + JUnit 5.14 (Java 21, Maven) |
 | System under test | Angular 21, Node.js 22 |
 | Environment and CI | Docker / Docker Compose, GitHub Actions (with Jenkins and GitLab CI examples) |
 
