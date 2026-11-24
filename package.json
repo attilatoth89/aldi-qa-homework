@@ -4,7 +4,7 @@
   "private": true,
   "description": "QA Automation Engineer homework: manual test design, Playwright E2E + API suites, Selenium/JUnit, Docker and CI",
   "scripts": {
-    "setup": "npm install --prefix app-under-test/task-manager-web && npm install --prefix playwright-tests && cd playwright-tests && npx playwright install",
+    "setup": "cd app-under-test/task-manager-web && npm ci && cd ../../playwright-tests && npm ci && npx playwright install",
     "test": "npm test --prefix playwright-tests",
     "test:api": "npm run test:api --prefix playwright-tests",
     "test:e2e": "npm run test:e2e --prefix playwright-tests",

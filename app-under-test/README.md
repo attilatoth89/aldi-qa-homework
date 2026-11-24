@@ -23,8 +23,9 @@ on :4200, which proxies `/api` to the API.
 npm start --prefix app-under-test/task-api
 
 # Terminal 2
-npm install --prefix app-under-test/task-manager-web
-npm start --prefix app-under-test/task-manager-web    # http://localhost:4200
+cd app-under-test/task-manager-web
+npm ci
+npm start                                             # http://localhost:4200
 ```
 
 Production-like mode: one process serves the built app and the API on :3000.

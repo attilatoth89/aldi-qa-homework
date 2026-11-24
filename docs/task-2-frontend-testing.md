@@ -47,12 +47,14 @@ Prerequisites: **Node.js 22 LTS** (or 20.19+) with npm, and Git.
 ```bash
 git clone <repository-url> && cd aldi-qa-homework
 
-# 1. Install the Angular app (the system under test)
-npm install --prefix app-under-test/task-manager-web
+# 1. Install the Angular app (the system under test) exactly as locked in package-lock.json
+cd app-under-test/task-manager-web
+npm ci
+cd ../..
 
 # 2. Install the test project and the browsers
 cd playwright-tests
-npm install
+npm ci
 npx playwright install --with-deps   # --with-deps also installs the Linux OS libraries
 
 # 3. Run the login tests (Chromium). The API and the Angular app are started automatically.
@@ -60,6 +62,9 @@ npm run test:e2e
 ```
 
 The root `package.json` wraps these steps: `npm run setup` followed by `npm test`.
+The installs run inside each folder on purpose: on Windows, a known npm bug
+([npm/cli#6960](https://github.com/npm/cli/issues/6960)) can make `npm install --prefix` add the
+current folder to `package.json` as a `file:` dependency.
 
 ### 3.2 Setting up Playwright in an Angular project from scratch
 
