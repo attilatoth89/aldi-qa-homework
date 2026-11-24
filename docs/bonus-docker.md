@@ -28,7 +28,7 @@ grid) together with their network, startup order and health checks.
 
 ```text
 docker-compose.yml
-├── app               docker/app.Dockerfile                        Angular build + REST API on :3000, with a health check
+├── task-app          docker/app.Dockerfile                        Angular build + REST API on :3000, with a health check
 ├── playwright-tests  docker/playwright.Dockerfile                 mcr.microsoft.com/playwright:v1.63.0-noble
 ├── selenium-chrome   selenium/standalone-chrome:4.54.0-20261124   Selenium Grid with Chrome     (profile "selenium")
 └── selenium-tests    maven:3.9-eclipse-temurin-21                 runs the JUnit suite against it (profile "selenium")
@@ -59,11 +59,11 @@ CMD ["--project=api", "--project=chromium"]
 playwright-tests:
   build: { context: ., dockerfile: docker/playwright.Dockerfile }
   depends_on:
-    app:
+    task-app:
       condition: service_healthy # tests start only when the app answers, no sleep
   environment:
-    BASE_URL: http://app:3000 # an external target, so the config does not start local servers
-    API_URL: http://app:3000/api
+    BASE_URL: http://task-app:3000 # an external target, so the config does not start local servers
+    API_URL: http://task-app:3000/api
   ipc: host
   volumes:
     - ./playwright-tests/reports:/tests/reports # HTML + JUnit reports end up on the host
@@ -95,6 +95,10 @@ when something fails and uploads the reports.
 - Multi-stage build, `.dockerignore` (no `node_modules` or reports in the build context),
   non-root runtime user.
 - Health checks with `depends_on: condition: service_healthy` instead of fixed waits.
+- The application service is called `task-app`, not `app`. `.app` is an HSTS-preloaded top-level
+  domain, and Chrome applies that rule to the plain hostname `app` as well, so `http://app:3000`
+  is forced to HTTPS and fails with `ERR_SSL_PROTOCOL_ERROR`. The Selenium suite in the Chrome
+  container hit exactly this on its first run.
 - `ipc: host` for Chromium (recommended by Playwright) and `shm_size: 2gb` for the Selenium
   Chrome container, so browsers do not crash on a small `/dev/shm`.
 - Reports are written to mounted volumes; credentials come from environment variables at run

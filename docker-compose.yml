@@ -3,7 +3,9 @@
 #   Selenium + JUnit:        docker compose --profile selenium run --rm selenium-tests
 #   Clean up:                docker compose --profile selenium down -v
 services:
-  app:
+  # Not "app": .app is an HSTS-preloaded TLD and Chrome applies that to the plain hostname "app"
+  # too, so http://app:3000 would be forced to HTTPS (ERR_SSL_PROTOCOL_ERROR).
+  task-app:
     build:
       context: .
       dockerfile: docker/app.Dockerfile
@@ -15,11 +17,11 @@ services:
       context: .
       dockerfile: docker/playwright.Dockerfile
     depends_on:
-      app:
+      task-app:
         condition: service_healthy
     environment:
-      BASE_URL: http://app:3000
-      API_URL: http://app:3000/api
+      BASE_URL: http://task-app:3000
+      API_URL: http://task-app:3000/api
     ipc: host # recommended by Playwright for Chromium
     volumes:
       - ./playwright-tests/reports:/tests/reports
@@ -41,13 +43,13 @@ services:
     working_dir: /tests
     command: ["mvn", "-B", "-ntp", "test"]
     depends_on:
-      app:
+      task-app:
         condition: service_healthy
       selenium-chrome:
         condition: service_healthy
     environment:
-      BASE_URL: http://app:3000
-      API_URL: http://app:3000/api
+      BASE_URL: http://task-app:3000
+      API_URL: http://task-app:3000/api
       SELENIUM_REMOTE_URL: http://selenium-chrome:4444
     volumes:
       - ./selenium-junit-tests:/tests

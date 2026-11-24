@@ -1,5 +1,6 @@
 # System under test in one container: the Angular production build is served by the
-# zero-dependency Node.js API, so the web app and the REST API share one origin (http://app:3000).
+# zero-dependency Node.js API, so the web app and the REST API share one origin
+# (http://task-app:3000 in docker-compose.yml).
 
 # Stage 1 - production build of the Angular app. Debian-based, the same libc as the CI runners,
 # so the platform-specific build tools from the lockfile (esbuild, Rollup) are the ones CI uses.
