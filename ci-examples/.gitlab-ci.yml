@@ -1,0 +1,58 @@
+# GitLab CI equivalent of .github/workflows/ci.yml (Playwright part).
+stages:
+  - test
+
+variables:
+  CI: "true"
+
+.playwright:
+  stage: test
+  image: mcr.microsoft.com/playwright:v1.63.0-noble
+  before_script:
+    - cd playwright-tests
+    - npm ci
+  artifacts:
+    when: always
+    expire_in: 2 weeks
+    paths:
+      - playwright-tests/reports/
+      - playwright-tests/test-results/
+    reports:
+      junit: playwright-tests/reports/junit.xml
+
+api-tests:
+  extends: .playwright
+  script:
+    - npx playwright test --project=api
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+# Fast feedback on every merge request: smoke subset in Chromium.
+e2e-smoke:
+  extends: .playwright
+  before_script:
+    - (cd app-under-test/task-manager-web && npm ci)
+    - cd playwright-tests
+    - npm ci
+  script:
+    - npx playwright test --project=chromium --grep @smoke
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+# Scheduled full regression: every browser, split into 4 parallel shards per browser.
+e2e-regression:
+  extends: .playwright
+  parallel:
+    matrix:
+      - BROWSER: [chromium, firefox, webkit]
+        SHARD: ["1/4", "2/4", "3/4", "4/4"]
+  before_script:
+    - (cd app-under-test/task-manager-web && npm ci)
+    - cd playwright-tests
+    - npm ci
+  script:
+    - npx playwright test --project=$BROWSER --shard=$SHARD
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"

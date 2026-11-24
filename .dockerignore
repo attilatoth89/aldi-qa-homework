@@ -1,0 +1,8 @@
+**/node_modules
+**/dist
+**/.angular
+**/out-tsc
+.git
+playwright-tests/reports
+playwright-tests/test-results
+selenium-junit-tests/target

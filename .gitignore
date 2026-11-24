@@ -1,0 +1,24 @@
+# Dependencies and build output
+node_modules/
+dist/
+.angular/
+out-tsc/
+selenium-junit-tests/target/
+
+# Test results and reports
+playwright-tests/reports/
+playwright-tests/test-results/
+playwright-tests/playwright-report/
+playwright-tests/blob-report/
+
+# Local configuration and secrets
+.env
+*.local
+
+# IDE / OS
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+*.log

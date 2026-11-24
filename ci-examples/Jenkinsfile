@@ -1,0 +1,46 @@
+// Jenkins declarative pipeline running the same suites through docker-compose.yml.
+// Requires an agent with Docker (label "docker").
+pipeline {
+  agent { label 'docker' }
+
+  options {
+    timestamps()
+    timeout(time: 45, unit: 'MINUTES')
+    disableConcurrentBuilds(abortPrevious: true)
+  }
+
+  // Every push/PR triggers the multibranch job; main additionally runs a nightly regression.
+  triggers {
+    cron(env.BRANCH_NAME == 'main' ? 'H 3 * * 1-5' : '')
+  }
+
+  stages {
+    stage('Build the test environment') {
+      steps {
+        sh 'docker compose --profile selenium build'
+      }
+    }
+
+    stage('Playwright: API + E2E') {
+      steps {
+        sh 'docker compose run --rm playwright-tests --project=api --project=chromium'
+      }
+    }
+
+    stage('Selenium + JUnit: Delete Task') {
+      steps {
+        sh 'docker compose --profile selenium run --rm selenium-tests'
+      }
+    }
+  }
+
+  post {
+    always {
+      junit testResults: 'playwright-tests/reports/junit.xml, selenium-junit-tests/target/surefire-reports/*.xml',
+            allowEmptyResults: true
+      archiveArtifacts artifacts: 'playwright-tests/reports/**, playwright-tests/test-results/**, selenium-junit-tests/target/screenshots/**',
+                       allowEmptyArchive: true
+      sh 'docker compose --profile selenium down -v --remove-orphans'
+    }
+  }
+}

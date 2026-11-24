@@ -1,0 +1,15 @@
+{
+  "name": "aldi-qa-homework",
+  "version": "1.0.0",
+  "private": true,
+  "description": "QA Automation Engineer homework: manual test design, Playwright E2E + API suites, Selenium/JUnit, Docker and CI",
+  "scripts": {
+    "setup": "npm install --prefix app-under-test/task-manager-web && npm install --prefix playwright-tests && cd playwright-tests && npx playwright install",
+    "test": "npm test --prefix playwright-tests",
+    "test:api": "npm run test:api --prefix playwright-tests",
+    "test:e2e": "npm run test:e2e --prefix playwright-tests",
+    "test:cross-browser": "npm run test:cross-browser --prefix playwright-tests",
+    "start:app": "npm run build --prefix app-under-test/task-manager-web && npm start --prefix app-under-test/task-api",
+    "test:selenium": "mvn -B -f selenium-junit-tests/pom.xml test"
+  }
+}

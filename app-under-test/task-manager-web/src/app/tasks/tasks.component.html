@@ -1,0 +1,74 @@
+<main class="page">
+  <h1>My tasks</h1>
+
+  <form class="add-task" [formGroup]="addForm" (ngSubmit)="addTask()" novalidate>
+    <label for="new-task-title">New task</label>
+    <div class="add-task-row">
+      <input
+        id="new-task-title"
+        type="text"
+        formControlName="title"
+        maxlength="200"
+        placeholder="e.g. Buy milk"
+        data-testid="new-task-title"
+      />
+      <button type="submit" class="primary" data-testid="add-task-button" [disabled]="adding() || addForm.invalid">
+        Add task
+      </button>
+    </div>
+  </form>
+
+  <p class="status" role="status" aria-live="polite" data-testid="status-message">{{ statusMessage() }}</p>
+
+  @if (loading()) {
+    <p data-testid="loading">Loading tasks…</p>
+  } @else if (loadError()) {
+    <p class="alert" role="alert">{{ loadError() }}</p>
+  } @else {
+    <ul class="task-list" data-testid="task-list">
+      @for (task of tasks(); track task.id) {
+        <li class="task-item" data-testid="task-item" [attr.data-task-id]="task.id">
+          <div class="task-text">
+            <span class="task-title" data-testid="task-title">{{ task.title }}</span>
+            <span class="task-status" [attr.data-status]="task.status">{{ statusLabel(task.status) }}</span>
+          </div>
+          <button
+            type="button"
+            class="danger"
+            data-testid="delete-task-button"
+            [attr.aria-label]="'Delete task: ' + task.title"
+            (click)="askDelete(task)"
+          >
+            Delete
+          </button>
+        </li>
+      } @empty {
+        <li class="empty" data-testid="empty-state">You have no tasks yet.</li>
+      }
+    </ul>
+  }
+
+  @if (pendingDelete(); as task) {
+    <div class="backdrop">
+      <div
+        class="dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="delete-dialog-title"
+        aria-describedby="delete-dialog-text"
+        data-testid="confirm-dialog"
+      >
+        <h2 id="delete-dialog-title">Delete task?</h2>
+        <p id="delete-dialog-text">
+          “<span data-testid="confirm-dialog-task-title">{{ task.title }}</span>” will be permanently deleted.
+        </p>
+        <div class="dialog-actions">
+          <button type="button" data-testid="cancel-delete" [disabled]="deleting()" (click)="cancelDelete()">Cancel</button>
+          <button type="button" class="danger" data-testid="confirm-delete" [disabled]="deleting()" (click)="confirmDelete()">
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</main>

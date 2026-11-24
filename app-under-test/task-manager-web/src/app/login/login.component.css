@@ -1,0 +1,25 @@
+.auth-page {
+  display: grid;
+  place-items: center;
+  padding: 4rem 1rem;
+}
+
+.card {
+  width: min(100%, 24rem);
+}
+
+.subtitle {
+  margin: 0 0 1.5rem;
+  color: var(--muted);
+}
+
+.field {
+  display: grid;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+}
+
+button.primary {
+  width: 100%;
+  margin-top: 0.5rem;
+}

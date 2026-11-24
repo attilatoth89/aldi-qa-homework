@@ -1,0 +1,57 @@
+# Reproducible test environment.
+#   Playwright (API + E2E):  docker compose run --rm playwright-tests
+#   Selenium + JUnit:        docker compose --profile selenium run --rm selenium-tests
+#   Clean up:                docker compose --profile selenium down -v
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/app.Dockerfile
+    ports:
+      - "3000:3000"
+
+  playwright-tests:
+    build:
+      context: .
+      dockerfile: docker/playwright.Dockerfile
+    depends_on:
+      app:
+        condition: service_healthy
+    environment:
+      BASE_URL: http://app:3000
+      API_URL: http://app:3000/api
+    ipc: host # recommended by Playwright for Chromium
+    volumes:
+      - ./playwright-tests/reports:/tests/reports
+      - ./playwright-tests/test-results:/tests/test-results
+
+  selenium-chrome:
+    image: selenium/standalone-chrome:latest
+    profiles: ["selenium"]
+    shm_size: 2gb
+    healthcheck:
+      test: ["CMD", "/opt/bin/check-grid.sh", "--host", "0.0.0.0", "--port", "4444"]
+      interval: 5s
+      timeout: 5s
+      retries: 24
+
+  selenium-tests:
+    image: maven:3.9-eclipse-temurin-21
+    profiles: ["selenium"]
+    working_dir: /tests
+    command: ["mvn", "-B", "-ntp", "test"]
+    depends_on:
+      app:
+        condition: service_healthy
+      selenium-chrome:
+        condition: service_healthy
+    environment:
+      BASE_URL: http://app:3000
+      API_URL: http://app:3000/api
+      SELENIUM_REMOTE_URL: http://selenium-chrome:4444
+    volumes:
+      - ./selenium-junit-tests:/tests
+      - maven-repository:/root/.m2
+
+volumes:
+  maven-repository:

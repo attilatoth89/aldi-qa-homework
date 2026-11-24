@@ -1,0 +1,27 @@
+{
+  "name": "playwright-tests",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Playwright end-to-end (Login) and API (Tasks) test suites",
+  "scripts": {
+    "test": "playwright test --project=api --project=chromium",
+    "test:api": "playwright test --project=api",
+    "test:e2e": "playwright test --project=chromium",
+    "test:cross-browser": "playwright test",
+    "test:smoke": "playwright test --project=api --project=chromium --grep @smoke",
+    "test:ui": "playwright test --ui",
+    "report": "playwright show-report reports/html",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "@types/node": "^22.0.0",
+    "typescript": "^6.0.3"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "aldi-qa-homework": "file:.."
+  }
+}

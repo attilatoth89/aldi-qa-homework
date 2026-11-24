@@ -1,0 +1,127 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 3 * * 1-5' # nightly cross-browser regression, 03:00 UTC on weekdays
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: '22'
+
+jobs:
+  api-tests:
+    name: API tests (Playwright)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: playwright-tests
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: playwright-tests/package-lock.json
+      - run: npm ci
+      - name: Type-check the test code
+        run: npm run typecheck
+      - name: Run the API tests (the Task API is started by playwright.config.ts)
+        run: npx playwright test --project=api
+      - uses: actions/upload-artifact@v6
+        if: ${{ !cancelled() }}
+        with:
+          name: api-test-report
+          path: playwright-tests/reports/
+          retention-days: 14
+
+  e2e-tests:
+    name: E2E tests (${{ matrix.browser }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        # Pull requests and pushes: Chromium only (fast feedback). Nightly: all three engines.
+        browser: ${{ github.event_name == 'schedule' && fromJSON('["chromium", "firefox", "webkit"]') || fromJSON('["chromium"]') }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: |
+            playwright-tests/package-lock.json
+            app-under-test/task-manager-web/package-lock.json
+      - name: Install the Angular app
+        working-directory: app-under-test/task-manager-web
+        run: npm ci
+      - name: Install the test project and the ${{ matrix.browser }} browser
+        working-directory: playwright-tests
+        run: |
+          npm ci
+          npx playwright install --with-deps ${{ matrix.browser }}
+      - name: Run the E2E tests (API + Angular dev server are started by playwright.config.ts)
+        working-directory: playwright-tests
+        run: npx playwright test --project=${{ matrix.browser }}
+      - uses: actions/upload-artifact@v6
+        if: ${{ !cancelled() }}
+        with:
+          name: e2e-report-${{ matrix.browser }}
+          path: |
+            playwright-tests/reports/
+            playwright-tests/test-results/
+          retention-days: 14
+
+  selenium-tests:
+    name: Selenium + JUnit (Delete Task)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: app-under-test/task-manager-web/package-lock.json
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: Build the Angular app
+        working-directory: app-under-test/task-manager-web
+        run: |
+          npm ci
+          npm run build
+      - name: Start the app (API + production web build on port 3000)
+        working-directory: app-under-test/task-api
+        run: |
+          STATIC_DIR="$GITHUB_WORKSPACE/app-under-test/task-manager-web/dist/task-manager-web/browser" \
+            nohup node src/server.js > "$RUNNER_TEMP/app.log" 2>&1 &
+          for attempt in $(seq 1 30); do
+            curl -fsS http://localhost:3000/api/health && exit 0
+            sleep 1
+          done
+          echo "The app did not start:"; cat "$RUNNER_TEMP/app.log"; exit 1
+      - name: Run the Selenium tests (headless Chrome, preinstalled on the runner)
+        working-directory: selenium-junit-tests
+        run: mvn -B -ntp test -Dbase.url=http://localhost:3000 -Dapi.url=http://localhost:3000/api
+      - uses: actions/upload-artifact@v6
+        if: ${{ !cancelled() }}
+        with:
+          name: selenium-reports
+          path: |
+            selenium-junit-tests/target/surefire-reports/
+            selenium-junit-tests/target/screenshots/
+          retention-days: 14
