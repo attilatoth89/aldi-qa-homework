@@ -1,7 +1,11 @@
 # QA Automation Engineer homework – ALDI
 
+[![CI](https://github.com/attilatoth89/aldi-qa-homework/actions/workflows/ci.yml/badge.svg?branch=main&event=push)](https://github.com/attilatoth89/aldi-qa-homework/actions/workflows/ci.yml)
+
 My solution to the homework assignment for the QA Automation Engineer position. Each task has its
-own document in [`docs/`](docs), and all the code is executable.
+own document in [`docs/`](docs), and all the code is executable: every push runs 70 automated
+tests on GitHub Actions (48 API, 14 E2E in Chromium, 8 Selenium), and a nightly run adds Firefox
+and WebKit to the E2E suite.
 
 **Author:** Attila Tóth
 
@@ -12,7 +16,7 @@ own document in [`docs/`](docs), and all the code is executable.
 | **3 – API testing** | Playwright API suite for `POST /tasks`, `GET`, `PUT`, `DELETE /tasks/{id}` with the expected status codes and responses: 38 tests, plus 10 login API tests | [docs/task-3-api-testing.md](docs/task-3-api-testing.md), [`playwright-tests/tests/api`](playwright-tests/tests/api) |
 | **Bonus – Docker** | What Docker is and why it helps QA, plus a Docker Compose test environment | [docs/bonus-docker.md](docs/bonus-docker.md), [`docker-compose.yml`](docker-compose.yml) |
 | **Bonus – JUnit + Selenium** | Maven project (Java 21, JUnit 5, Selenium 4) for the **Delete Task** feature: 8 tests | [docs/bonus-junit-selenium.md](docs/bonus-junit-selenium.md), [`selenium-junit-tests`](selenium-junit-tests) |
-| **Bonus – CI** | GitHub Actions pipeline for every push and pull request, plus Jenkins and GitLab CI examples | [docs/bonus-ci.md](docs/bonus-ci.md), [`.github/workflows/ci.yml`](.github/workflows/ci.yml) |
+| **Bonus – CI** | GitHub Actions pipeline for every push and pull request with a nightly cross-browser run, plus Jenkins and GitLab CI examples | [docs/bonus-ci.md](docs/bonus-ci.md), [`.github/workflows/ci.yml`](.github/workflows/ci.yml) |
 
 ## Quick start
 
@@ -74,7 +78,7 @@ Reports: `playwright-tests/reports/html` (open with `npm run report --prefix pla
 
 | Area | Tools |
 | --- | --- |
-| Test automation | Playwright 1.63 with TypeScript; Selenium 4.49 + JUnit 5.14 (Java 21, Maven) |
+| Test automation | Playwright 1.63 with TypeScript; Selenium 4.52 + JUnit 5.14 (Java 21, Maven) |
 | System under test | Angular 21, Node.js 22 |
 | Environment and CI | Docker / Docker Compose, GitHub Actions (with Jenkins and GitLab CI examples) |
 
