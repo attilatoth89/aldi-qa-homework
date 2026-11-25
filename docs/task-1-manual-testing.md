@@ -22,7 +22,7 @@ a short exploratory session on the live site.
 | Store / ZIP | ALDI - BAT 18 - Geneva, IL, ZIP 60174 (preselected by the site; the visit came from outside the US) |
 | First visit | A **Cookie Notice** (Cookie Preferences / Reject All Non-Essential / Accept All) and the **"How would you like to shop?"** dialog (Delivery / Pickup / In-Store + Confirm). Both appear again in every new private session. |
 | In-Store mode | The header shows "In-Store · open 9am - 8pm, ALDI - BAT 18 - Geneva, IL". The "View cart" button becomes a **list button with a counter**. Product tiles show an **"Add"** button with a list icon, the stock level ("Many in stock") and the **in-store location** ("Cooler Doors", "Canned Food"). |
-| After "Add" | The button turns into a quantity stepper ("− 1 ct +"), which collapses into a "1 ct" badge. The header counter shows the number of **different products** (1 × butter + 3 × pumpkin = **2**). |
+| After "Add" | The button turns into a quantity stepper (e.g. "− 3 ct +"; at 1 ct a trash icon takes the place of "−"), which collapses into a badge with the quantity (e.g. "1 ct"). The header counter shows the number of **different products** (1 × butter + 3 × pumpkin = **2**). |
 | Shopping list drawer | Title "Shopping list", buttons "Manage", "Order online" and "Sort". Items are **grouped by store location**. Every line has a checkbox, image, name, size, line price (sale price × quantity, with the regular price struck through) and quantity. The footer shows **Est. total** and **Est. savings**. |
 | Guest (not signed in) | Products can be added **without signing in**. The list is **kept after a page reload (F5)**. |
 
@@ -43,8 +43,9 @@ is only touched where it borders on the list (see [section 4](#4-further-scenari
 - The test cases use the store and products I observed. Prices come from the weekly ad that was
   running on 21 Nov 2026, so the expected amounts are recalculated from the prices shown at
   execution time.
-- Signed-in runs need a dedicated test account. The guest flows were verified in the
-  exploratory session.
+- Signed-in runs need a dedicated test account (`TEST_USER_A` in this document). The guest flows
+  were verified in the exploratory session on 21 Nov 2026, and on 25 Nov 2026 I also executed
+  the test cases manually with an account of my own.
 - No written requirements were provided. The requirement IDs (`US-LIST-01` … `03`) are
   illustrative user stories derived from the observed behaviour and the platform documentation,
   so that each test case shows what it traces to.
@@ -73,7 +74,7 @@ maps to the manual test steps (Action / Data / Expected Result).
 
 ## 3. Test cases
 
-### TC-ASL-001 – Add a single product to the shopping list
+### TC-ASL-001 – Add a single product to the shopping list as a signed-in user
 
 | Field | Value |
 | --- | --- |
@@ -82,7 +83,7 @@ maps to the manual test steps (Action / Data / Expected Result).
 | Requirement | US-LIST-01: *As a shopper planning a store visit, I can add a product to my shopping list.* |
 | Type | Functional, **positive** (happy path) |
 | Priority | High – smoke |
-| Preconditions | 1. Signed in as test customer `TEST_USER_A`. 2. Cookie consent already given. 3. The shopping list is empty (counter shows 0). |
+| Preconditions | 1. A new private window with aldi.us open (the Cookie Notice and the "How would you like to shop?" dialog only appear by themselves in a fresh session). 2. The Cookie Notice is closed (e.g. **Reject All Non-Essential**) and the shopping-mode dialog is confirmed with any mode (steps 1–2 set the mode). 3. Signed in as test customer `TEST_USER_A`. 4. The shopping list is empty (counter shows 0). |
 | Test data | Store: ALDI - BAT 18 - Geneva, IL. Product A: *Countryside Creamery Salted Butter Quarters, 16 oz* (location "Cooler Doors"; $1.99, regular $2.89 on 21 Nov 2026). Any in-stock product can replace it. |
 | Environment | Desktop Chrome (latest stable), Windows 11, 1920 × 1080, production aldi.us |
 | Automation candidate | Yes – smoke test with a dedicated test account |
@@ -92,27 +93,27 @@ maps to the manual test steps (Action / Data / Expected Result).
 | 1 | Click the shopping-mode selector in the header (top right). | The "How would you like to shop?" dialog opens with Delivery, Pickup and In-Store; the current mode is highlighted. |
 | 2 | Select **In-Store** (ALDI - BAT 18 - Geneva, IL) and click **Confirm**. | The dialog closes. The header shows "In-Store · open … / ALDI - BAT 18 - Geneva, IL". The cart button changes to a list button with counter **0**. Tiles show "Add" with a list icon, a stock level and an in-store location. |
 | 3 | Search for `salted butter` (field "Search products, recipes, and more") and press Enter. | Product A is in the results with its price, stock level and location "Cooler Doors". |
-| 4 | Note the price of Product A, then click its **Add** button. | The button changes to the quantity stepper showing **1 ct**. The header counter changes from 0 to **1**. No sign-in prompt and no error message. |
+| 4 | Note the price of Product A, then click its **Add** button. | The button changes to the quantity stepper showing **1 ct**. The header counter changes from 0 to **1**. No error message. |
 | 5 | Click the list button in the header. | The **Shopping list** drawer opens. Product A is listed **once** under the heading **Cooler Doors**: checkbox unchecked, image, name, "16 oz", the price noted in step 4, quantity **1 ct**. |
 | 6 | Check the drawer footer. | **Est. total** = the price of Product A. **Est. savings** = regular price − sale price ($0.90 on 21 Nov 2026), or $0.00 if the product is not on sale. |
 | 7 | Close the drawer and reload the page (F5). | Still In-Store mode. The counter still shows 1 and the tile still shows "1 ct". |
 
 - **Expected result:** Product A is on the shopping list exactly once, with quantity 1, the
   correct price and location, and the header counter shows 1.
-- **Postconditions:** Remove Product A ("Manage" in the drawer, or "−" on the stepper), so the
-  list is empty again.
+- **Postconditions:** Remove Product A with the trash icon (at 1 ct it takes the place of "−" on
+  the stepper), so the list is empty again.
 
 ### TC-ASL-002 – Attempt to add a product without being logged in
 
 | Field | Value |
 | --- | --- |
 | ID | TC-ASL-002 |
-| Feature / component | Shopping list – guest (anonymous) session, sign-in transition |
-| Requirement | US-LIST-02: *A visitor can build a shopping list without an account; it is kept for the visit and not visible to anybody else.* Guest shopping is the platform default: guests can add items without logging in and only need an account to check out. |
+| Feature / component | Shopping list – guest (anonymous) session, sign-in transition (merging the guest list) |
+| Requirement | US-LIST-02: *A visitor can build a shopping list without an account; it is kept for the visit, is not visible to anybody else, and its items are added to the account's list on sign-in.* Guest shopping is the platform default: guests can add items without logging in and only need an account to check out. The platform documentation does not describe what happens to the guest list on sign-in. |
 | Type | **Negative** / access control: the user is not authenticated |
 | Priority | High |
-| Preconditions | No ALDI session. **Close every private window first:** Chrome shares one private session between all open private windows. Steps 8–10 also need test account `TEST_USER_B` with an empty list. |
-| Test data | Product B: *ALDI Canned Pumpkin, 15 oz* (location "Canned Food"; $0.99, regular $1.79 on 21 Nov 2026) |
+| Preconditions | No ALDI session. **Close every private window first:** Chrome shares one private session between all open private windows. Steps 9–13 also need test account `TEST_USER_A` with an empty list. |
+| Test data | Product B: *ALDI Canned Pumpkin, 15 oz* (search term `canned pumpkin`; location "Canned Food"; $0.99, regular $1.79 on 21 Nov 2026) |
 | Environment | Desktop Chrome (latest stable), private window, production aldi.us |
 | Automation candidate | Yes – every Playwright test starts in a fresh, incognito-like browser context, which is exactly this precondition |
 
@@ -121,18 +122,25 @@ maps to the manual test steps (Action / Data / Expected Result).
 | 1 | Open a new private window and go to `https://www.aldi.us`. | The page loads in a fresh session. The **Cookie Notice** and the **"How would you like to shop?"** dialog are shown. The header shows **Sign In / Register**, so the user is not signed in. |
 | 2 | Click **Reject All Non-Essential**. | The Cookie Notice closes. Rejecting optional cookies must not break the site. |
 | 3 | In the dialog select **In-Store** and click **Confirm**. | In-Store mode is active and the list counter shows **0**. "Sign In / Register" is still visible. |
-| 4 | Click **Add** on Product B. | The product is added **without a sign-in prompt** (guest shopping is allowed). The tile shows "1 ct" and the counter shows **1**. A forced login or an error message here is a defect. |
-| 5 | Reload the page (F5). | The guest list is kept for the session: counter 1, Product B still "1 ct", still In-Store mode. |
-| 6 | Open the list drawer. | Product B is listed under **Canned Food** with quantity 1 ct, price and Est. total. The list contains no data of any other user. |
-| 7 | Close **all** private windows, open a new one, go to aldi.us and choose In-Store again. | A new guest session starts with an **empty** list (counter 0). The previous guest's list is not visible (session isolation). |
-| 8 | In this new session add Product B again, then click **Sign In / Register** and sign in as `TEST_USER_B`. | Sign-in succeeds and the user returns to the storefront in In-Store mode. |
-| 9 | Open the list drawer. | Product B, added as a guest, is **kept**: it is now in the account's list (merged with the account's items, if there were any). Counter 1. |
-| 10 | Sign out. | The list is no longer shown (counter 0), so the account's list is not exposed on a shared computer. |
+| 4 | Search for `canned pumpkin` (field "Search products, recipes, and more") and press Enter. | Product B is in the results with its price, stock level and location "Canned Food". |
+| 5 | Click **Add** on Product B. | The product is added **without a sign-in prompt** (guest shopping is allowed). The tile shows "1 ct" and the counter shows **1**. |
+| 6 | Reload the page (F5). | The guest list is kept for the session: counter 1, Product B still "1 ct", still In-Store mode. |
+| 7 | Open the list drawer. | Product B is listed under **Canned Food** with quantity 1 ct, price and Est. total. The list contains no data of any other user. |
+| 8 | Close **all** private windows, open a new one, go to aldi.us, close the Cookie Notice and choose In-Store again. | A new guest session starts with an **empty** list (counter 0). The previous guest's list is not visible (session isolation). |
+| 9 | In this new session search for Product B and add it again (1 ct), then click **Sign In / Register** and sign in as `TEST_USER_A`. | Sign-in succeeds and the user returns to the storefront in In-Store mode. |
+| 10 | Open the list drawer. | Product B, added as a guest, is **kept**: it is now in the account's list with 1 ct. Counter 1. |
+| 11 | Sign out and choose In-Store again. | The list is no longer shown (counter 0), so the account's list is not exposed on a shared computer. |
+| 12 | Signed out, add Product B again, then press **+** once more. | The guest list shows Product B at 2 ct; counter 1. |
+| 13 | Sign in as `TEST_USER_A` again and open the list drawer. | Product B shows **3 ct** (1 ct from the account's list + 2 ct added as a guest): for the same product the quantities are added up and none is lost. Counter 1. |
 
 - **Expected result:** A user who is not logged in can use the shopping list for the current
-  session. No other session can see the list, and its items are not lost when the user signs in.
-- **Postconditions:** Sign in as `TEST_USER_B` and clear the list; close the private windows.
-- **Note:** Steps 8–10 can catch the defect described in [BUG-ASL-001](#6-sample-bug-report).
+  session. No other session can see the list, and its items are not lost when the user signs in:
+  new items move to the account's list, and for products already there the quantities are added
+  up.
+- **Postconditions:** Clear the list of `TEST_USER_A` (reduce Product B to 1 ct with "−", then
+  remove it with the trash icon), sign out and close the private windows.
+- **Note:** Steps 12–13 catch [BUG-ASL-001](#6-sample-bug-report): currently the list shows 2 ct
+  instead of 3 ct.
 
 ### TC-ASL-003 – Add multiple products and verify the shopping list
 
@@ -144,7 +152,7 @@ maps to the manual test steps (Action / Data / Expected Result).
 | Type | Functional, **positive** (with calculation checks) |
 | Priority | High – regression |
 | Preconditions | Signed in as `TEST_USER_A`; In-Store mode at ALDI - BAT 18 - Geneva, IL; the list is empty. |
-| Test data | See the table below (prices observed on 21 Nov 2026). |
+| Test data | See the table below. The prices are those observed on 21 Nov 2026; if they have changed, recalculate the expected totals from the prices shown at execution time. |
 | Environment | Desktop Chrome (latest stable), Windows 11, production aldi.us |
 | Automation candidate | Yes – regression; expected totals are calculated from the prices on the tiles |
 
@@ -157,19 +165,20 @@ maps to the manual test steps (Action / Data / Expected Result).
 
 | # | Action | Expected result |
 | --- | --- | --- |
-| 1 | Click **Add** on Product A. | A shows "1 ct"; the counter shows **1**. |
-| 2 | Click **Add** on Product B, then **+** twice on its stepper. | The stepper shows 2 ct, then **3 ct**. The counter shows **2**, because it counts different products, not units. |
-| 3 | Click **Add** on Product C. | C shows "1 ct"; the counter shows **3**. |
+| 1 | Click **Add** on Product A (if it is not on the home page, search for `salted butter`). | A shows "1 ct"; the counter shows **1**. |
+| 2 | Click **Add** on Product B (search: `canned pumpkin`), then **+** twice on its stepper. | The stepper shows 2 ct, then **3 ct**. The counter shows **2**, because it counts different products, not units. |
+| 3 | Click **Add** on Product C (search: `unsalted butter`). | C shows "1 ct"; the counter shows **3**. |
 | 4 | Open the list drawer. | Two location groups: **Cooler Doors** with A and C, and **Canned Food** with B. Each line shows an unchecked checkbox, name, size and quantity (A 1 ct, B 3 ct, C 1 ct). |
 | 5 | Check the line prices. | A $1.99 (~~$2.89~~); B **$2.97** = 3 × $0.99 (~~$5.37~~ = 3 × $1.79); C $1.99 (~~$2.89~~). |
-| 6 | Check the footer. | **Est. total $6.95** (1.99 + 2.97 + 1.99) and **Est. savings $4.20** (0.90 + 2.40 + 0.90). Exploratory evidence: with A and B only, the drawer showed $4.96 and $3.30, which matches the same formula. |
+| 6 | Check the footer. | **Est. total $6.95** (1.99 + 2.97 + 1.99) and **Est. savings $4.20** (0.90 + 2.40 + 0.90). |
 | 7 | Close the drawer and reload the page (F5). | The list is unchanged: same 3 products, quantities and totals. |
 | 8 | Sign out, sign in again as `TEST_USER_A` and open the list. | The same list is shown: it is stored with the account, not only in the browser. |
 
 - **Expected result:** All three products are listed once, with the right quantities, grouped by
   store location. Line prices, Est. total and Est. savings are calculated correctly, and the list
   survives a reload and a new sign-in.
-- **Postconditions:** Clear the list with **Manage**.
+- **Postconditions:** Clear the list: reduce Product B to 1 ct with "−", then remove all three
+  items with the trash icon.
 
 ![The list is kept after a reload (F5)](images/05-list-kept-after-reload.png)
 
@@ -181,8 +190,13 @@ These are scenarios I would add next, here only as one-liners.
 
 ### Functional
 
-- Removing an item ("−" at 1 ct, or **Manage**) removes the line, lowers the counter and
-  recalculates the totals.
+- Reducing and removing: "−" lowers the quantity by one; at 1 ct the trash icon removes the line
+  and lowers the counter. In both cases the totals are recalculated.
+- **Manage** (top right of the drawer): according to the platform documentation it removes items
+  from the list or adds them to the cart. Both are worth trying with several items at once.
+- Custom items (**Add custom item**, at the bottom of the list): the item appears in the list and
+  is kept after a reload and a new sign-in. Also check whether guests can use it: I did not see
+  it in the guest list on 21 Nov.
 - The same product added from different places (search, category page, Weekly Ad, a recipe's
   "add all ingredients") ends up as **one line** with the quantities added up.
 - Ticking the checkbox while shopping: the state is kept after a reload and the totals stay
@@ -245,49 +259,52 @@ account and must respect bot protection, so they would normally target a staging
 
 ## 6. Sample bug report
 
-> **This is a potential (hypothetical) bug, not one observed on production.** It is a realistic
-> defect class for this feature: the state transition from guest to registered user. TC-ASL-002
-> (steps 8–10) is designed to catch it. Reproducing it on production would need a test account.
+> **Real behaviour, found while executing the test cases manually (25 Nov 2026).** There is no
+> written requirement, and the platform documentation does not describe what happens to the
+> guest list on sign-in, so this may be intended. The report therefore also asks the product
+> owner for a decision. The hypothetical bug I had assumed earlier (guest items disappear after
+> signing in) was not confirmed: items that are not yet in the account's list are carried over
+> in full.
 
 | Field | Value |
 | --- | --- |
 | **ID** | BUG-ASL-001 |
-| **Title** | [Shopping list / In-Store] Items added as a guest disappear after signing in |
-| **Reporter / date** | Attila Tóth, 2026-11-21 |
-| **Status / assignee** | New / unassigned (to be triaged) |
-| **Component** | Web storefront → Shopping list (In-Store mode), Authentication |
-| **Environment** | Production `https://www.aldi.us`, 21 Nov 2026 19:30 CET; Windows 11, Google Chrome (latest stable, exact version from `chrome://version`), private window; store ALDI - BAT 18 - Geneva, IL (ZIP 60174); shopping mode In-Store; account `TEST_USER_B` with an empty list |
-| **Severity** | **Major**: data the user created is lost. A workaround exists (sign in first). |
-| **Priority** | **P2 (high)**: hits every guest who signs in to keep a list, which is the default first-visit journey. |
-| **Reproducibility** | Always (5/5) |
-| **Linked test case** | TC-ASL-002, step 9 |
-| **Preconditions** | Not signed in (new private window); `TEST_USER_B` exists and has an empty shopping list. |
+| **Title** | [Shopping list / In-Store] Quantities of the same product are not added up on sign-in: the guest list overwrites the account's list |
+| **Reporter / date** | Attila Tóth, 2026-11-25 |
+| **Status / assignee** | New / unassigned (to be triaged; needs a product owner decision) |
+| **Component** | Web storefront → Shopping list (In-Store mode), Authentication (merging the guest list on sign-in) |
+| **Environment** | Production `https://www.aldi.us`, 25 Nov 2026; Windows 11, Google Chrome (latest stable, exact version from `chrome://version`), private window; store ALDI - BAT 18 - Geneva, IL (ZIP 60174); shopping mode In-Store; account `TEST_USER_A` |
+| **Severity** | **Minor**: no item disappears, but the quantity stored in the account's list is lost without a warning. A workaround exists. |
+| **Priority** | **P3 (normal)**: hits shoppers who add the same product both signed in and as a guest. The final priority depends on the product owner's decision. |
+| **Reproducibility** | Always |
+| **Linked test case** | TC-ASL-002, steps 12–13 |
+| **Preconditions, test data** | New private window, In-Store mode; the list of `TEST_USER_A` is empty. Product: any in-stock product; the steps use Product A (*Countryside Creamery Salted Butter Quarters, 16 oz*) as an example. |
 
 ### Steps to reproduce
 
-1. Open `https://www.aldi.us` in a new private window. Click **Reject All Non-Essential**,
-   choose **In-Store** (ALDI - BAT 18 - Geneva, IL) and click **Confirm**.
-2. Add *ALDI Canned Pumpkin, 15 oz* and press **+** until the quantity is **3 ct**.
-3. Add *Countryside Creamery Salted Butter Quarters, 16 oz* (1 ct).
-4. Open the list drawer and check that it shows both items: counter 2, Est. total $4.96.
-5. Close the drawer, click **Sign In / Register** and sign in as `TEST_USER_B`.
+1. Open `https://www.aldi.us` in a new private window, close the Cookie Notice, choose
+   **In-Store** and sign in as `TEST_USER_A`.
+2. Add Product A to the list. The list drawer shows 1 ct.
+3. Sign out and choose In-Store again. The list counter shows 0.
+4. Signed out, add Product A again, then press **+** once more. The list drawer shows 2 ct.
+5. Sign in as `TEST_USER_A` again.
 6. Open the list drawer.
 
-**Expected result:** both items are in the signed-in user's list with their quantities (3 ct and
-1 ct); counter 2; Est. total $4.96. If the account already has items, the guest items are merged
-and the quantities of the same product are added up. This is the platform's guest-shopping
-behaviour, also described in US-LIST-02.
+**Expected result:** Product A shows **3 ct** (1 ct from the account's list + 2 ct from the guest
+list); counter 1. The merge keeps the quantities of both sides, just as it carries over items
+that are not yet in the account's list.
 
-**Actual result:** after signing in the list is **empty** and the counter shows **0**. Signing
-out again does not bring the guest items back: they are lost.
+**Actual result:** Product A shows **2 ct**: the guest quantity overwrites the 1 ct stored in the
+account's list. Products that are not yet in the account's list are carried over correctly, with
+the quantity from the guest list.
 
 | Field | Value |
 | --- | --- |
-| **Impact** | Shoppers who plan a trip as guests (the default first visit) lose their list when they sign in or register. This damages trust and conversion; "lost my list" complaints reach customer care. |
-| **Attachments** | `BUG-ASL-001.mp4` (screen recording of steps 1–6), `BUG-ASL-001.har` (network log of the sign-in), console log, screenshots before and after signing in |
-| **Workaround** | Sign in before building the list. |
-| **Notes / analysis** | Suspected cause: the guest list is tied to the anonymous session and is not migrated to the user on sign-in. To check in the HAR: does the list request after sign-in still send the guest session id? Compare with the Delivery/Pickup cart: if the guest cart is merged but the list is not, the two behave inconsistently. Also try Pickup and Delivery mode, Firefox and Safari, and an account that already has a list (merge vs. overwrite). |
-| **Labels** | `shopping-list`, `in-store`, `guest`, `sign-in`, `data-loss` |
+| **Impact** | Shoppers who build their list partly signed in and partly as guests (for example after signing out, or on another device) see the quantities of the same products change without a warning, so they may buy less than planned. Because new items are carried over, users reasonably expect the quantities to be added up as well. |
+| **Attachments** | Screenshots of the list drawer before signing out (1 ct), as a guest (2 ct) and after signing in again (2 ct); screen recording of steps 1–6; HAR file of the sign-in |
+| **Workaround** | After signing in, check and correct the affected quantities by hand, or edit the list only while signed in. |
+| **Notes / analysis** | Suspected cause: on sign-in the guest items are merged as an upsert: a new product is inserted, but for an existing one the quantity is set instead of incremented. To check in the HAR: does the merge request send an absolute quantity? The observed rule also means that a quantity can go down (3 ct in the account, 1 ct as a guest → 1 ct); worth trying separately. If the overwrite is intended ("last intent wins"), the user should at least be told about the change. Also compare with the Delivery/Pickup cart. |
+| **Labels** | `shopping-list`, `in-store`, `guest`, `sign-in`, `merge` |
 
 ## 7. Observation from the exploratory session
 

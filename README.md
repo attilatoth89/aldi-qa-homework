@@ -13,7 +13,7 @@ same suites in containers.
 
 | Task | Deliverable | Where |
 | --- | --- | --- |
-| **1 – Manual testing** | 3 test cases for "Add to Shopping List" on aldi.us (positive and negative), the test case fields, the bug report fields and a sample bug report, based on an exploratory session on the live site | [docs/task-1-manual-testing.md](docs/task-1-manual-testing.md) |
+| **1 – Manual testing** | 3 test cases for "Add to Shopping List" on aldi.us (positive and negative), the test case fields, the bug report fields and a sample bug report. Based on an exploratory session on the live site; the test cases were also run by hand, and the sample bug is a real issue found in that run | [docs/task-1-manual-testing.md](docs/task-1-manual-testing.md) |
 | **2 – Frontend testing** | Setup steps and a Playwright + TypeScript E2E suite for the Angular **Login** (successful login, invalid password, validation, security, session): 14 tests | [docs/task-2-frontend-testing.md](docs/task-2-frontend-testing.md), [`playwright-tests/tests/e2e`](playwright-tests/tests/e2e) |
 | **3 – API testing** | Playwright API suite for `POST /tasks`, `GET`, `PUT`, `DELETE /tasks/{id}` with the expected status codes and responses: 38 tests, plus 10 login API tests | [docs/task-3-api-testing.md](docs/task-3-api-testing.md), [`playwright-tests/tests/api`](playwright-tests/tests/api) |
 | **Bonus – Docker** | What Docker is and why it helps QA, plus a Docker Compose test environment that a GitHub Actions workflow builds and runs | [docs/bonus-docker.md](docs/bonus-docker.md), [`docker-compose.yml`](docker-compose.yml) |
