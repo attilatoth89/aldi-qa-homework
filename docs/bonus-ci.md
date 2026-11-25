@@ -63,6 +63,10 @@ e2e-regression:
     matrix:
       - BROWSER: [chromium, firefox, webkit]
         SHARD: ["1/4", "2/4", "3/4", "4/4"]
+  before_script:
+    - (cd app-under-test/task-manager-web && npm ci)
+    - cd playwright-tests
+    - npm ci
   script:
     - npx playwright test --project=$BROWSER --shard=$SHARD
   rules:

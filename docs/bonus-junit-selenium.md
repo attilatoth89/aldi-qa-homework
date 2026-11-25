@@ -134,6 +134,8 @@ docker compose --profile selenium run --rm selenium-tests
 | Browser | `browser` | `BROWSER` | `chrome` (or `firefox`, `edge`) |
 | Headless | `headless` | `HEADLESS` | `true` |
 | Selenium Grid | `selenium.remote.url` | `SELENIUM_REMOTE_URL` | empty: a local browser |
+| Test user | `test.user.email`, `test.user.password` | `TEST_USER_EMAIL`, `TEST_USER_PASSWORD` | the demo account |
+| UI timeout (seconds) | `ui.timeout.seconds` | `UI_TIMEOUT_SECONDS` | `10` |
 
 Reports: `target/surefire-reports/*.xml` (JUnit XML for CI) and failure screenshots in
 `target/screenshots/`.
@@ -148,4 +150,5 @@ Reports: `target/surefire-reports/*.xml` (JUnit XML for CI) and failure screensh
   independent and safe to run in parallel (e.g. on a Selenium Grid).
 - Arrange and verify through the API, act in the UI: faster and less flaky than doing everything
   through the browser.
-- Tags select the suite (`-Dgroups=smoke` on pull requests, the full regression nightly).
+- Tags select a subset when needed (`-Dgroups=smoke` for a quick check). The suite is small, so CI
+  runs all of it on every push and pull request.

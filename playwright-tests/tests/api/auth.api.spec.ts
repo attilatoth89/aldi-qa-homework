@@ -85,6 +85,7 @@ test.describe('POST /auth/login', () => {
     const response = await authApi.login({ email: users.demo.email, password: users.other.password });
     await expectError(response, UNAUTHORIZED_STATUS, INVALID_CREDENTIALS_CODE);
   });
+
   for (const { scenario, payload, invalidFields } of INVALID_PAYLOADS) {
     test(`returns 400 for ${scenario}`, async ({ authApi }) => {
       const response = await authApi.login(payload);

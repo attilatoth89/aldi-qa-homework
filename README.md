@@ -56,7 +56,7 @@ Reports: `playwright-tests/reports/html` (open with `npm run report --prefix pla
 │   └── tests/                 e2e/login.spec.ts, api/tasks.api.spec.ts, api/auth.api.spec.ts
 ├── selenium-junit-tests/      Bonus: Maven, JUnit 5, Selenium 4 (Delete Task)
 ├── docker/, docker-compose.yml
-├── .github/workflows/ci.yml   CI pipeline
+├── .github/workflows/        ci.yml (CI pipeline), docker.yml (the suites in Docker)
 └── ci-examples/               Jenkinsfile, .gitlab-ci.yml
 ```
 

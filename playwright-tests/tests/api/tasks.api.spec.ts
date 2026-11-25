@@ -158,7 +158,6 @@ test.describe('Tasks API', () => {
     });
   });
 
-
   test.describe('GET /tasks/{id} - retrieve a task', () => {
     test('returns 200 and the task', { tag: '@smoke' }, async ({ tasksApi, createdTask }) => {
       const response = await tasksApi.get(createdTask.id);
@@ -183,7 +182,6 @@ test.describe('Tasks API', () => {
       await expectError(response, NOT_FOUND_STATUS, NOT_FOUND_CODE);
     });
   });
-
 
   test.describe('PUT /tasks/{id} - update a task', () => {
     test('replaces the task: 200 with the new state, which is persisted', { tag: '@smoke' }, async ({ tasksApi, createdTask }) => {
@@ -228,7 +226,6 @@ test.describe('Tasks API', () => {
       expect(await readBack.json(), ASSERTION_MESSAGES.taskUnchanged).toEqual(createdTask);
     });
   });
-  
 
   test.describe('DELETE /tasks/{id} - delete a task', () => {
     test('deletes the task: 204 with an empty body, then GET returns 404', { tag: '@smoke' }, async ({ tasksApi, createdTask }) => {

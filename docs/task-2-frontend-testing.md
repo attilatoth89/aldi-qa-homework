@@ -42,7 +42,7 @@ focuses on what only the browser can show: the user journey, messages, redirects
 
 ### 3.1 Running this repository
 
-Prerequisites: **Node.js 22 LTS** (or 20.19+) with npm, and Git.
+Prerequisites: **Node.js 22 LTS** with npm, and Git.
 
 ```bash
 git clone <repository-url> && cd aldi-qa-homework
@@ -131,7 +131,7 @@ playwright-tests/
 | **Isolation** | Every test runs in a fresh browser context (clean localStorage and cookies) and does not depend on any other test, so tests can run in parallel and in any order. |
 | **Security in scope** | Generic error message (no account enumeration), no session after a failure, masked password, open-redirect protection. |
 | **Data-driven tests** | One test body for the three invalid-input cases; adding a case means adding one row. |
-| **Tags** | `@smoke` runs on every pull request in seconds; everything else is regression. |
+| **Tags** | `@smoke` marks the critical paths, and `npm run test:smoke` runs only those in seconds. The suite is small, so CI still runs every test on each push and pull request. |
 
 ## 5. The test script
 

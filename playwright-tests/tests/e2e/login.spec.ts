@@ -173,7 +173,6 @@ test.describe('Login', () => {
     });
   });
 
-
   test.describe('session handling', () => {
     test('sends a signed-out user to the login page and back to the requested page', async ({ page, loginPage, tasksPage }) => {
       await tasksPage.goto();

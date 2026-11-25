@@ -249,7 +249,7 @@ string. The malformed-JSON test therefore sends a `Buffer` (see `TasksApi.create
 
 ```bash
 cd playwright-tests
-npm install
+npm ci
 npm run test:api                             # starts the API automatically; no browser needed
 npx playwright test --project=api --grep @smoke
 API_URL=https://staging.example.com/api npm run test:api   # against another deployment
